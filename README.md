@@ -1,7 +1,7 @@
 # anino_backend
-heroku: https://the-jp.herokuapp.com/
-db: used mongodb atlass uri string
-go run main.go
+heroku: https://the-jp.herokuapp.com/ <br />
+db: used mongodb atlass uri string <br />
+go run main.go <br />
 # User Endpoints
 ## `POST /user`
 ## `GET /user/:_id`
