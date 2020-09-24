@@ -43,14 +43,19 @@ func (b Score) PostScore(score Score) (Score, error) {
 		}
 		score.ID = insertResult.InsertedID.(primitive.ObjectID)
 	}
-
-	// //find board where id = board id
-	// collection = db.GetDB().Database("anino").Collection("board")
-	// filter = bson.M{
-	// 	"_id": scorePost.BoardId}
-	// //push
-	// updateResult = collection.FindOneAndUpdate(context.TODO(), filter, update)
-	// //sort
+	collection = db.GetDB().Database("anino").Collection("board")
+	bsonID, err := primitive.ObjectIDFromHex(score.BoardId)
+	updateResult = collection.FindOneAndUpdate(context.TODO(),
+		bson.M{"_id": bsonID},
+		bson.D{
+			{"$push",
+				bson.D{
+					{"entries", score},
+				}},
+		})
+	// (1) Tasks To Do: use $each and $sort by score Issues: how to nest these?? #$%$%^
+	// (2) Fix retrieve by creating struct compliant with specs (includes [name, rank], remove [board_id]) Issues: must finish (1)
+	// (3) If rank is top 0 and if channel is not closed, close channel and previous go routine ends. If rank top 0 and channel is closed, run fake account go routine time.sleep for 5 *time.seconds
 	score.Score = tempScoreVal
-	return score, nil
+	return score, err
 }

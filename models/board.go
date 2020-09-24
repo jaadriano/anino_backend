@@ -12,9 +12,9 @@ import (
 )
 
 type Board struct {
-	ID    primitive.ObjectID `bson:"_id,omitempty" json:"_id,omitempty"`
-	Name  string             `json:"name"`
-	Entry []Score            `json:"entries"`
+	ID      primitive.ObjectID `bson:"_id,omitempty" json:"_id,omitempty"`
+	Name    string             `json:"name"`
+	Entries []Score            `json:"entries"`
 }
 
 func (b Board) GetByID(id string) (Board, error) {
