@@ -53,6 +53,15 @@ func (b Score) PostScore(score Score) (Score, error) {
 					{"entries", score},
 				}},
 		})
+	updateResult = collection.FindOneAndUpdate(context.TODO(),
+		bson.M{"_id": bsonID},
+		bson.D{
+			{"$sort",
+				bson.D{
+					{"score", -1},
+				}},
+		})
+
 	// (1) Tasks To Do: use $each and $sort by score Issues: how to nest these?? #$%$%^
 	// (2) Fix retrieve by creating struct compliant with specs (includes [name, rank], remove [board_id]) Issues: must finish (1)
 	// (3) If rank is top 0 and if channel is not closed, close channel and previous go routine ends. If rank top 0 and channel is closed, run fake account go routine time.sleep for 5 *time.seconds

@@ -21,6 +21,12 @@ func NewRouter() *gin.Engine {
 		})
 	}
 
+	router.GET("/", func(ctx *gin.Context) {
+		ctx.JSON(200, gin.H{
+			"JP Adriano Anino Exam": "API",
+		})
+	})
+
 	user := new(controller.UserController)
 	board := new(controller.BoardController)
 
