@@ -17,7 +17,6 @@ func Init() {
 	if err != nil {
 		fmt.Println(err)
 	}
-
 }
 
 func GetDB() *mongo.Client {

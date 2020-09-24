@@ -22,9 +22,14 @@ func NewRouter() *gin.Engine {
 	}
 
 	user := new(controller.UserController)
+	board := new(controller.BoardController)
 
 	router.GET("/user/:id", user.RetrieveUser)
 	router.POST("/user/", user.AddUser)
+
+	router.POST("/admin/leaderboard/", board.AddBoard)
+	router.GET("/leaderboard/:id", board.RetrieveBoard)
+	router.PUT("/leaderboard/:id/user/:user_id/add_score", board.AddBoardScore)
 
 	return router
 }
