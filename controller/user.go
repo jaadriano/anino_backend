@@ -36,7 +36,7 @@ func (u UserController) AddUser(ctx *gin.Context) {
 		name = query["name"][0]
 	} else {
 		body, err := ioutil.ReadAll(ctx.Request.Body)
-		user := models.UserPost{}
+		user := models.User{}
 		err = json.Unmarshal(body, &user)
 		name = user.Name
 		if err != nil {

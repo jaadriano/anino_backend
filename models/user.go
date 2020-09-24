@@ -2,7 +2,6 @@ package models
 
 import (
 	"context"
-	"encoding/json"
 	"log"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -13,8 +12,8 @@ import (
 )
 
 type User struct {
-	ID   string `bson:"_id" json:"_id"`
-	Name string `json:"name"`
+	ID   primitive.ObjectID `bson:"_id,omitempty" json:"_id,omitempty"`
+	Name string             `json:"name"`
 }
 
 func (h User) GetByID(id string) (User, error) {
@@ -22,31 +21,17 @@ func (h User) GetByID(id string) (User, error) {
 	bsonID, err := primitive.ObjectIDFromHex(id)
 	filter := bson.M{"_id": bsonID}
 	var user User
-
 	err = collection.FindOne(context.TODO(), filter).Decode(&user)
-
 	return user, err
 }
 
-type UserPost struct {
-	Name string `json:"name"`
-}
-
 func (h User) PostUser(name string) (User, error) {
-	userPost := UserPost{Name: name}
-
+	user := User{Name: name}
 	collection := db.GetDB().Database("anino").Collection("user")
-
-	insertResult, err := collection.InsertOne(context.TODO(), userPost)
-
+	insertResult, err := collection.InsertOne(context.TODO(), user)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	id, _ := json.Marshal(insertResult.InsertedID)
-	s := string(id)
-	userId := s[1 : len(s)-1]
-
-	user := User{ID: userId, Name: userPost.Name}
+	user.ID = insertResult.InsertedID.(primitive.ObjectID)
 	return user, err
 }

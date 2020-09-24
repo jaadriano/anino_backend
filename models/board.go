@@ -2,7 +2,6 @@ package models
 
 import (
 	"context"
-	"encoding/json"
 	"log"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -13,9 +12,9 @@ import (
 )
 
 type Board struct {
-	ID    string  `bson:"_id" json:"_id"`
-	Name  string  `json:"name"`
-	Entry []Score `json:"entries"`
+	ID    primitive.ObjectID `bson:"_id,omitempty" json:"_id,omitempty"`
+	Name  string             `json:"name"`
+	Entry []Score            `json:"entries"`
 }
 
 func (b Board) GetByID(id string) (Board, error) {
@@ -27,45 +26,29 @@ func (b Board) GetByID(id string) (Board, error) {
 	return board, err
 }
 
-type BoardPost struct {
-	Name  string  `json:"name"`
-	Entry []Score `json:"entries"`
-}
-
 func (b Board) PostBoard(name string) (Board, error) {
-	boardPost := BoardPost{Name: name}
-
+	board := Board{Name: name}
 	collection := db.GetDB().Database("anino").Collection("board")
-
-	insertResult, err := collection.InsertOne(context.TODO(), boardPost)
-
+	insertResult, err := collection.InsertOne(context.TODO(), board)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	id, _ := json.Marshal(insertResult.InsertedID)
-	s := string(id)
-	boardId := s[1 : len(s)-1]
-
-	board := Board{ID: boardId, Name: boardPost.Name}
+	board.ID = insertResult.InsertedID.(primitive.ObjectID)
 	return board, err
 }
 
-func (b Board) PutBoard(name string) (Board, error) {
-	boardPost := BoardPost{Name: name}
+// func (b Board) PutBoard(name string) (Board, error) {
+// 	board := Board{Name: name}
+// 	collection := db.GetDB().Database("anino").Collection("board")
+// 	insertResult, err := collection.InsertOne(context.TODO(), boardPost)
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
 
-	collection := db.GetDB().Database("anino").Collection("board")
+// 	id, _ := json.Marshal(insertResult.InsertedID)
+// 	s := string(id)
+// 	boardId := s[1 : len(s)-1]
 
-	insertResult, err := collection.InsertOne(context.TODO(), boardPost)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	id, _ := json.Marshal(insertResult.InsertedID)
-	s := string(id)
-	boardId := s[1 : len(s)-1]
-
-	board := Board{ID: boardId, Name: boardPost.Name}
-	return board, err
-}
+// 	board := Board{ID: boardId, Name: boardPost.Name}
+// 	return board, err
+// }

@@ -35,7 +35,7 @@ func (u BoardController) AddBoard(ctx *gin.Context) {
 		name = query["name"][0]
 	} else {
 		body, err := ioutil.ReadAll(ctx.Request.Body)
-		board := models.BoardPost{}
+		board := models.Board{}
 		err = json.Unmarshal(body, &board)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"message": "invalid request body"})
