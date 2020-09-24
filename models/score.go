@@ -3,7 +3,6 @@ package models
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 	"time"
 
@@ -32,26 +31,28 @@ type ScorePost struct {
 func (b Score) PostScore(scorePost ScorePost) (Score, error) {
 	collection := db.GetDB().Database("anino").Collection("score")
 	filter := bson.M{"board_id": scorePost.BoardId, "user_id": scorePost.UserId}
-	var board Board
-	var scoreId string
-	err := collection.FindOne(context.TODO(), filter).Decode(&board)
-	if err != nil {
+	update := bson.D{
+		{"$set", bson.D{
+			{"score", scorePost.Score},
+		}},
+	}
+	score := Score{
+		ID:       scorePost.BoardId,
+		BoardId:  scorePost.BoardId,
+		Score:    scorePost.Score,
+		ScoredAt: scorePost.ScoredAt,
+		UserId:   scorePost.UserId}
+	updateResult := collection.FindOneAndUpdate(context.TODO(), filter, update)
+	updateResult.Decode(&score)
+	if score.ID == score.BoardId {
 		insertResult, err := collection.InsertOne(context.TODO(), scorePost)
 		if err != nil {
 			log.Fatal(err)
 		}
 		id, _ := json.Marshal(insertResult.InsertedID)
 		s := string(id)
-		scoreId = s[1 : len(s)-1]
-	} else {
-		fmt.Println(board.ID)
+		scoreId := s[1 : len(s)-1]
+		score.ID = scoreId
 	}
-	score := Score{
-		ID:       scoreId,
-		BoardId:  scorePost.BoardId,
-		Score:    scorePost.Score,
-		ScoredAt: scorePost.ScoredAt,
-		UserId:   scorePost.UserId}
-	err = nil
-	return score, err
+	return score, nil
 }
