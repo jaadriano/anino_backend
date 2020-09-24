@@ -61,39 +61,39 @@ func (u BoardController) AddBoard(ctx *gin.Context) {
 
 func (u BoardController) AddBoardScore(ctx *gin.Context) {
 	query := ctx.Request.URL.Query()
-	scorePost := models.ScorePost{
+	score := models.Score{
 		BoardId:  ctx.Param("id"),
 		ScoredAt: time.Now(),
 		Score:    0,
 		UserId:   ctx.Param("user_id")}
 	if len(query["score_to_add"]) == 1 {
 		scoreValue, _ := strconv.Atoi(query["score_to_add"][0])
-		scorePost.Score = scoreValue
+		score.Score = scoreValue
 	} else {
 		body, err := ioutil.ReadAll(ctx.Request.Body)
-		score := models.ScoreToAdd{}
-		err = json.Unmarshal(body, &score)
-		scorePost.Score = score.Score
+		scoreVal := models.ScoreToAdd{}
+		err = json.Unmarshal(body, &scoreVal)
+		score.Score = scoreVal.Score
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"message": "invalid request body"})
 			ctx.Abort()
 			return
 		}
 	}
-	userExists, err := userModel.GetByID(scorePost.UserId)
+	userExists, err := userModel.GetByID(score.UserId)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"message": "User not found", "error": err})
 		ctx.Abort()
 		return
 	}
-	boardExists, err := boardModel.GetByID(scorePost.BoardId)
+	boardExists, err := boardModel.GetByID(score.BoardId)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"message": "Board not found", "error": err})
 		ctx.Abort()
 		return
 	}
 	fmt.Sprintln(userExists, boardExists)
-	scoreBoard, err := scoreModel.PostScore(scorePost)
+	scoreBoard, err := scoreModel.PostScore(score)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"message": "Score Post failed", "error": err})
 		ctx.Abort()
